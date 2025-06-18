@@ -23,8 +23,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\..\..\..\project\BulkyWebProject-d7e8dbf2a1dc1c044dd6f9d2dfd9c0f0b911ef64\Bulky.DataAccess\Bulky.DataAccess.csproj" />
     <ProjectReference Include="..\..\..\..\..\..\..\project\BulkyWebProject-d7e8dbf2a1dc1c044dd6f9d2dfd9c0f0b911ef64\Bulky.Model\Bulky.Model.csproj" />
+    <ProjectReference Include="..\..\..\BulkyWebProject-d7e8dbf2a1dc1c044dd6f9d2dfd9c0f0b911ef64\Bulky.DataAccess\Bulky.DataAccess.csproj" />
   </ItemGroup>
 
   <ItemGroup>
