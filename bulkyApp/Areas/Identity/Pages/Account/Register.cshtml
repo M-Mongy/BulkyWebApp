@@ -84,6 +84,11 @@
                         <select asp-for="Input.role" asp-items="@Model.Input.RoleList" class="form-select">
                             <option disabled selected>--Select Role--</option>
                         </select>
+                    </div> 
+                    <div class="form-floating mb-3 col-md-6">
+                        <select asp-for="Input.CompanyId" style="display:none;" asp-items="@Model.Input.CompanyList" class="form-select">
+                            <option disabled selected>--Select Company--</option>
+                        </select>
                     </div>
 
                     <!-- Submit Button -->
@@ -133,4 +138,18 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function () {
+            $('#Input_role').change(function () {
+                var selection = $('#Input_role Option:Selected').text();
+                if (selection == 'Company') {
+                    $('#Input_CompanyId').show();
+                }
+                else{
+
+                    $('#Input_CompanyId').hide();
+                }
+            })
+        })
+    </script>
 }
