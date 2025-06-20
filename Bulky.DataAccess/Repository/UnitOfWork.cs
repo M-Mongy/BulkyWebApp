@@ -18,8 +18,10 @@ namespace Bulky.DataAccess.Repository
         public IcategoriesRepository Category { get; private set; }
         public IProductRepository Product { get; private set; }
         public IcompanyRepository Company { get; private set; }
-        public IshoppingCartRepository shoppingCart { get; private set; }
+        public IshoppingCartRepository ShoppingCart { get; private set; }
         public IapplicationUsersRepository applicationUser { get; private set; }
+        public IorderDetailRepository orderDetail { get; private set; }
+        public IorderHeaderRepository orderHeader { get; private set; }
 
         public UnitOfWork(ApplicationDBContext db)
         {
@@ -27,8 +29,10 @@ namespace Bulky.DataAccess.Repository
             Category = new CategoryRepository(_db);
             Product = new ProductRepository(_db);
             Company = new CompanyRepository(_db);
-            shoppingCart = new ShoppingCartRepository(_db);
+            ShoppingCart = new ShoppingCartRepository(_db);
             applicationUser = new ApplicationUserRepository(_db);
+            orderDetail = new OrderDetailRepository(_db);
+            orderHeader = new OrderHeaderRepository(_db);
         }
 
         public void Save()

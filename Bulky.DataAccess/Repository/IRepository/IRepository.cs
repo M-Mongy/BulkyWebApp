@@ -13,6 +13,6 @@ namespace Bulky.DataAccess.Repository.IRepository
         T Get(Expression<Func<T, bool>> filter, string? includeProperties = null,bool tracked=false);
         void Remove(T entity);
         void Add(T entity);
-        void RemoveRange(T entity);
+        void RemoveRange(IEnumerable<T> entity);
     }
 }
