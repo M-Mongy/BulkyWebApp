@@ -103,6 +103,33 @@ namespace Bulky.DataAccess.Migrations
                     b.ToTable("Products");
                 });
 
+            modelBuilder.Entity("Bulky.Model.Models.ShoppingCart", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ApplicationUserID")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("count")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApplicationUserID");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("shoppingCarts");
+                });
+
             modelBuilder.Entity("Bulky.Models.Category", b =>
                 {
                     b.Property<int>("Id")
@@ -368,6 +395,25 @@ namespace Bulky.DataAccess.Migrations
                         .IsRequired();
 
                     b.Navigation("category");
+                });
+
+            modelBuilder.Entity("Bulky.Model.Models.ShoppingCart", b =>
+                {
+                    b.HasOne("Bulky.Model.ApplicationUser", "ApplicationUser")
+                        .WithMany()
+                        .HasForeignKey("ApplicationUserID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Bulky.Model.Models.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ApplicationUser");
+
+                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
