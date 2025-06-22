@@ -21,7 +21,7 @@ namespace Bulky.DataAccess.Repository
         public IshoppingCartRepository ShoppingCart { get; private set; }
         public IapplicationUsersRepository applicationUser { get; private set; }
         public IorderDetailRepository orderDetail { get; private set; }
-        public IorderHeaderRepository orderHeader { get; private set; }
+        public IOrderHeaderRepository orderHeader { get; private set; }
 
         public UnitOfWork(ApplicationDBContext db)
         {
