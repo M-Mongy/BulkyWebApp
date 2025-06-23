@@ -5,7 +5,16 @@
     <div class="card-header bg-primary text-white bg-gradient ml-0 py-4">
         <div class="row">
             <div class="col-12 text-center">
-                <h2 class="py-2 text-while">Register</h2>
+                @if (User.IsInRole(SD.Role_Admin))
+                {
+                    <h2 class="py-2 text-while">Register - ADMIN PORTAL </h2>
+
+                }
+                else
+                {
+                    <h2 class="py-2 text-while">Register</h2>
+                }
+                
             </div>
         </div>
     </div>
@@ -79,6 +88,7 @@
                         <span asp-validation-for="Input.PostalCode" class="text-danger"></span>
                     </div>
 
+                    @if(User.IsInRole(SD.Role_Admin)){
                     <!-- Role Selection -->
                     <div class="form-floating mb-3 col-md-6">
                         <select asp-for="Input.role" asp-items="@Model.Input.RoleList" class="form-select">
@@ -90,6 +100,7 @@
                             <option disabled selected>--Select Company--</option>
                         </select>
                     </div>
+                    }
 
                     <!-- Submit Button -->
                     <div class="col-md-12 ">
@@ -97,10 +108,10 @@
                     </div>
                 </form>
             </div>
-            <div class="col-md-12 col-md-offset-2">
+            @if(!User.IsInRole(SD.Role_Admin)){
+            <div class="col-md-12 p-3 text-center">
                 <section>
                     <p class="divider-text d-flex pt-2">OR</p>
-                    <h3>Use another service to register.</h3>
 
                     @{
                         if ((Model.ExternalLogins?.Count ?? 0) == 0)
@@ -130,6 +141,7 @@
                     }
                 </section>
             </div>
+            }
         </div>
     </div>
 </div>
