@@ -18,5 +18,6 @@ namespace Bulky.Data.Data
         public DbSet<Company> companies { get; set; }
         public DbSet<OrderDetail> orderDetails { get; set; }
         public DbSet<OrderHeader> orderHeaders { get; set; }
+        public DbSet<ProductImage> ProductImages { get; set; }
     }
 }

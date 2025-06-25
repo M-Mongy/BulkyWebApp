@@ -9,6 +9,8 @@ using Bulky.Model.Models.view_models;
 using Microsoft.AspNetCore.Hosting;
 using Bulky.Utility;
 using Microsoft.AspNetCore.Authorization;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 namespace BulkyWep.Areas.Admin.Controllers
 {
     [Area("Admin")]
@@ -47,74 +49,87 @@ namespace BulkyWep.Areas.Admin.Controllers
             else
             {
                 //update
-                productvm.Product = _unitOfWork.Product.Get(u => u.Id == Id);
+                productvm.Product = _unitOfWork.Product.Get(u => u.Id == Id,includeProperties: "ProductImages");
                 return View (productvm);
             }
         }
         [HttpPost]
-        public IActionResult Upsert(ProductVM productvm,IFormFile? file)
+        public IActionResult Upsert(ProductVM productVM, List<IFormFile>? files)
         {
-            if (!ModelState.IsValid)
+            // First, check if the model state is valid. All logic should be inside this block.
+            if (ModelState.IsValid)
             {
-                productvm.CategoryList = _unitOfWork.Category.GetAll().Select(u => new SelectListItem
+                // Check if this is a new product or an update
+                if (productVM.Product.Id == 0)
+                {
+                    // This is a new product, so add it to the database first.
+                    // This is necessary to get a Product.Id for creating the image folder path.
+                    _unitOfWork.Product.Add(productVM.Product);
+                    _unitOfWork.Save();
+                }
+                else
+                {
+                    // This is an update, so update the main product entity.
+                    _unitOfWork.Product.Update(productVM.Product);
+                }
+
+                string wwwRootPath = _webHostEnvironment.WebRootPath;
+                if (files != null)
+                {
+                    // The path for the product's image folder
+                    string productPath = @"images\products\product-" + productVM.Product.Id;
+                    string finalProductPath = Path.Combine(wwwRootPath, productPath);
+
+                    // Create the directory if it doesn't exist
+                    if (!Directory.Exists(finalProductPath))
+                    {
+                        Directory.CreateDirectory(finalProductPath);
+                    }
+
+                    // Loop through each uploaded file
+                    foreach (IFormFile file in files)
+                    {
+                        // Create a unique file name for each image
+                        string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                        string filePath = Path.Combine(finalProductPath, fileName);
+
+                        // Save the physical file to the server
+                        using (var fileStream = new FileStream(filePath, FileMode.Create))
+                        {
+                            file.CopyTo(fileStream);
+                        }
+
+                        // Create a new ProductImage object
+                        ProductImage productImage = new()
+                        {
+                            ImageUrl = @"\" + productPath + @"\" + fileName,
+                            ProductId = productVM.Product.Id,
+                        };
+
+                        // CRITICAL FIX: Explicitly add the new ProductImage record to the database context.
+                        _unitOfWork.ProductImages.Add(productImage);
+                    }
+                }
+
+                // Save all changes (product update and new images) to the database.
+                _unitOfWork.Save();
+
+                TempData["success"] = "Product created/updated successfully!";
+                return RedirectToAction("Index");
+            }
+            else
+            {
+                // If the model state is not valid, re-populate the CategoryList
+                // and return the view with the validation errors.
+                productVM.CategoryList = _unitOfWork.Category.GetAll().Select(u => new SelectListItem
                 {
                     Text = u.Name,
                     Value = u.Id.ToString()
                 });
-                return View(productvm); // Return view with current model to show errors
+                return View(productVM);
             }
-
-            string wwwRootpath = _webHostEnvironment.WebRootPath;
-
-            if (file != null) // Check if a new file was uploaded
-            {
-                string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-                string productDirectoryPath = Path.Combine(wwwRootpath, @"Images\Product");
-
-                // Ensure the directory exists
-                if (!Directory.Exists(productDirectoryPath))
-                {
-                    Directory.CreateDirectory(productDirectoryPath);
-                }
-
-                // Delete old image if it exists and this is an update operation
-                // and there was an existing image path
-                if (productvm.Product.Id != 0 && !string.IsNullOrEmpty(productvm.Product.imageUrl))
-                {
-                    var oldImagePath = Path.Combine(wwwRootpath, productvm.Product.imageUrl.TrimStart('\\'));
-                    if (System.IO.File.Exists(oldImagePath))
-                    {
-                        System.IO.File.Delete(oldImagePath);
-                    }
-                }
-
-                // Save the new image
-                string filePath = Path.Combine(productDirectoryPath, fileName);
-                using (var fileStream = new FileStream(filePath, FileMode.Create))
-                {
-                    file.CopyTo(fileStream);
-                }
-                productvm.Product.imageUrl = @"\Images\Product\" + fileName; // Update imageUrl to new file path
-            }
-            // If 'file' is null and it's an update, productvm.Product.imageUrl will retain
-            // its existing value from the hidden input in the form. No action needed here.
-
-            if (productvm.Product.Id == 0) // Create scenario
-            {
-                _unitOfWork.Product.Add(productvm.Product);
-                TempData["success"] = "Product created successfully!";
-            }
-            else // Update scenario
-            {
-                _unitOfWork.Product.Update(productvm.Product);
-                TempData["success"] = "Product updated successfully!";
-            }
-
-            // Save all changes to the database
-            _unitOfWork.Save();
-
-            return RedirectToAction("Index");
         }
+
         #region API CALLS
         [HttpGet]
         public IActionResult GetAll() {
@@ -128,14 +143,58 @@ namespace BulkyWep.Areas.Admin.Controllers
             if (projectToBedDeleted== null) {
                 return Json(new { success=false,messsge="Error while deleting"});
             }
-            var oldImagePath = Path.Combine(_webHostEnvironment.WebRootPath, projectToBedDeleted.imageUrl.TrimStart('\\'));
-            if (System.IO.File.Exists(oldImagePath))
-            {
-                System.IO.File.Delete(oldImagePath);
-            }
+
+            string productPath = @"images\products\product-" + id;
+            string finalProductPath = Path.Combine(_webHostEnvironment.WebRootPath, productPath);
             _unitOfWork.Product.Remove(projectToBedDeleted);
+
+            if (!Directory.Exists(finalProductPath))
+            {
+                string[] filePaths=Directory.GetFiles(finalProductPath);
+                foreach (string filepath in filePaths)
+                {
+                    System.IO.File.Delete(filepath);
+                }
+                Directory.Delete(finalProductPath);
+            }
             _unitOfWork.Save();
             return Json(new { success = true, messsge = "Error Successfully" });
+        }
+
+        public IActionResult DeleteImage(int imageId)
+        {
+            // Find the specific image record in the database using its ID.
+            var imageToBeDeleted = _unitOfWork.ProductImages.Get(u => u.Id == imageId);
+
+            // Store the productId before deleting the image, so we can redirect back to the correct product page.
+            int productId = imageToBeDeleted.ProductId;
+
+            if (imageToBeDeleted != null)
+            {
+                // Check if the ImageUrl is not null or empty to prevent errors.
+                if (!string.IsNullOrEmpty(imageToBeDeleted.ImageUrl))
+                {
+                    // Construct the absolute path to the physical image file on the server.
+                    // TrimStart('\\') removes any leading backslashes from the stored URL to prevent path errors.
+                    var oldImagePath = Path.Combine(_webHostEnvironment.WebRootPath,
+                                                    imageToBeDeleted.ImageUrl.TrimStart('\\'));
+
+                    // Check if the physical file actually exists on the server before trying to delete it.
+                    if (System.IO.File.Exists(oldImagePath))
+                    {
+                        System.IO.File.Delete(oldImagePath);
+                    }
+                }
+
+                // After deleting the physical file, remove the image record from the database.
+                _unitOfWork.ProductImages.Remove(imageToBeDeleted);
+                _unitOfWork.Save();
+
+                TempData["success"] = "Deleted successfully";
+            }
+
+            // Redirect the user back to the Upsert page for the same product they were editing.
+            return RedirectToAction(nameof(Upsert), new { id = productId });
         }
         #endregion
     }

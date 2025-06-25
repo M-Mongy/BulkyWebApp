@@ -106,6 +106,9 @@ namespace Bulky.DataAccess.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime>("OrderDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("OrderStatus")
                         .HasColumnType("nvarchar(max)");
 
@@ -132,7 +135,7 @@ namespace Bulky.DataAccess.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("SessionID")
+                    b.Property<string>("SessionId")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("ShippingDate")
@@ -148,9 +151,6 @@ namespace Bulky.DataAccess.Migrations
 
                     b.Property<string>("TrackingNumber")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("orderDate")
-                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
@@ -197,15 +197,33 @@ namespace Bulky.DataAccess.Migrations
                     b.Property<int>("categoryID")
                         .HasColumnType("int");
 
-                    b.Property<string>("imageUrl")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.HasKey("Id");
 
                     b.HasIndex("categoryID");
 
                     b.ToTable("Products");
+                });
+
+            modelBuilder.Entity("Bulky.Model.Models.ProductImage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("ProductImages");
                 });
 
             modelBuilder.Entity("Bulky.Model.Models.ShoppingCart", b =>
@@ -532,6 +550,17 @@ namespace Bulky.DataAccess.Migrations
                     b.Navigation("category");
                 });
 
+            modelBuilder.Entity("Bulky.Model.Models.ProductImage", b =>
+                {
+                    b.HasOne("Bulky.Model.Models.Product", "Product")
+                        .WithMany("ProductImages")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+                });
+
             modelBuilder.Entity("Bulky.Model.Models.ShoppingCart", b =>
                 {
                     b.HasOne("Bulky.Model.ApplicationUser", "ApplicationUser")
@@ -609,6 +638,11 @@ namespace Bulky.DataAccess.Migrations
                         .HasForeignKey("CompanyId");
 
                     b.Navigation("Company");
+                });
+
+            modelBuilder.Entity("Bulky.Model.Models.Product", b =>
+                {
+                    b.Navigation("ProductImages");
                 });
 #pragma warning restore 612, 618
         }
