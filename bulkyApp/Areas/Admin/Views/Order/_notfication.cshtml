@@ -1,0 +1,42 @@
+﻿<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="~/js/site.js" asp-append-version="true"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+@if (TempData["success"] != null)
+{
+    <script type="text/javascript">
+        // This script runs when the document is ready and Toastr is loaded.
+        // It displays a success notification with the message from TempData.
+        $(document).ready(function() {
+            toastr.success('@TempData["success"]');
+        });
+    </script>
+}
+@if (TempData["error"] != null)
+{
+    <script type="text/javascript">
+        // This script runs when the document is ready and Toastr is loaded.
+        // It displays an error notification with the message from TempData.
+        $(document).ready(function() { // Using $(document).ready() consistently
+            toastr.error('@TempData["error"]');
+        });
+    </script>
+}
+
+@* This is for the temporary debugging messages *@
+@if (TempData["StripeStatus"] != null)
+{
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+    <script type="text/javascript">
+        toastr.info('@TempData["StripeStatus"]');
+    </script>
+}
+@if (TempData["PaymentIntentId"] != null)
+{
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+    <script type="text/javascript">
+        toastr.info('@TempData["PaymentIntentId"]');
+    </script>
+}

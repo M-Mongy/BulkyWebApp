@@ -1,0 +1,69 @@
+﻿@using Bulky.Utility
+@model RoleManagementVM
+
+<form method="post">
+    <input asp-for="@Model.applicationUser.Id" hidden />
+    <div class="card shadow border-0 my-4">
+        <div class="card-header bg-secondary bg-gradient ml-0 py-3">
+            <div class="row">
+                <div class="col-12 text-center">
+                    <h2 class="text-white py-2">Manage User Role</h2>
+                </div>
+            </div>
+        </div>
+        <div class="card-body p-4">
+
+            <div class="form-floating py-2">
+                <input asp-for="applicationUser.Name" readonly class="form-control" />
+                <label asp-for="applicationUser.Name" class="ms-2"></label>
+            </div>
+
+            <div class="form-floating py-2">
+                <select id="userRole" asp-for="applicationUser.Role" asp-items="@Model.Roles" class="form-select"></select>
+                <label asp-for="applicationUser.Role" class="ms-2"></label>
+            </div>
+
+            <!-- This div will be shown or hidden by the JavaScript -->
+            <div id="companyDropdown" class="form-floating py-2">
+                <select asp-for="applicationUser.CompanyId" asp-items="@Model.CompanyList" class="form-select">
+                    <option disabled selected>--Select Company--</option>
+                </select>
+                <label asp-for="applicationUser.CompanyId" class="ms-2"></label>
+            </div>
+
+            <div class="row pt-2">
+                <div class="col-6 col-md-3">
+                    <button type="submit" asp-action="RoleManagement" asp-controller="User" class="btn btn-primary form-control">Update Role</button>
+                </div>
+                <div class="col-6 col-md-3">
+                    <a asp-controller="User" asp-action="Index" class="btn btn-secondary border form-control">Back to List</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // This script shows or hides the company dropdown based on the selected role
+        $(document).ready(function() {
+            function toggleCompanyDropdown() {
+                var selectedRole = $('#userRole').val();
+                if (selectedRole === '@SD.Role_Company') {
+                    $('#companyDropdown').show();
+                } else {
+                    $('#companyDropdown').hide();
+                }
+            }
+
+            // Run the function when the page first loads to set the correct initial state
+            toggleCompanyDropdown();
+
+            // Run the function every time the role dropdown changes
+            $('#userRole').change(function() {
+                toggleCompanyDropdown();
+            });
+        });
+    </script>
+}
