@@ -69,33 +69,3 @@ Set up your email provider in appsettings.json for confirmation emails
 Seed default admin credentials via the Seed method
 
 Adjust product image path under wwwroot/images/products/
-
-### 🤝 Contributing
-We welcome contributions from the community!
-
-To contribute:
-Fork the repository
-
-Create a new branch (git checkout -b feature/YourFeature)
-
-Commit your changes (git commit -m 'Add new feature')
-
-Push and open a Pull Request
-
-### 📄 License
-Distributed under the MIT License.
-See the LICENSE file for more details.
-
-### 📧 Contact
-Mohamed Mongy – mohamedmongy96@gmail.com
-
-GitHub Repo: https://github.com/M-Mongy/BulkyWebApp
-
-### 🙏 Acknowledgments
-Microsoft ASP.NET Core Documentation
-
-Bootstrap
-
-Entity Framework Core Docs
-
-All open-source contributors and community support
